@@ -1,0 +1,27 @@
+syntax="proto3";
+
+package server;
+
+import "proxy.proto";
+import "session.proto";
+import "base_types.proto";
+
+option go_package = "/server";
+
+message SomeData {
+  repeated base_types.PointsCloud pointsCloud = 1;
+  repeated base_types.MotionFrame motionFrames = 2;
+}
+
+service ActantTest {
+
+  //rpc ReceiveTelemetryStream (stream session.SessionData) returns (proxy.BaseReply) {};
+
+  //rpc ReceiveTelemetry (session.SessionData) returns (proxy.BaseReply) {};
+
+  rpc SendTelemetry (SomeData) returns (proxy.BaseReply) {};
+
+  rpc SendTelemetryWithHttp (SomeData) returns (proxy.BaseReply) {};
+
+  rpc RouteTelemetry(stream session.SessionData) returns (stream SomeData);
+}

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package positioning;
+
+option go_package = "/server";
+
+import "base_types.proto";
+
+
+enum GetPositionResult {
+    OK = 0;
+    NO_MATCH = 1;
+    NO_MAP = 2;
+    NO_FRAMES = 3;
+}
+
+message GetPositionReply {
+    base_types.Position position = 1;
+    GetPositionResult result = 2;
+    string ba_scene_id = 3;
+    string ba_scene_label = 4;
+    string session_id = 5;
+}
+
+message GetPositionRequest {
+    base_types.DataFrame frame = 1;
+    string session_id = 2;
+    uint64 user_id = 3;
+    base_types.Matrix3x3 intrinsic_matrix = 4;
+}
+
+
+message GetBatchPositionRequest {
+    repeated GetPositionRequest batch = 1;
+}
+
+message GetBatchPositionReply {
+    repeated GetPositionReply batch = 1;
+}
+
+
+
+service PositioningService { //c++ сервис Ромы
+
+    // если клиент подключился к проксе и слушает (открыл ListenPositions), то все что прилетает
+    // в TelemetryService.InStream.DataFrame запрашивается сюда и результаты транслируются в ListenPositions
+    rpc GetPosition (GetPositionRequest) returns (GetPositionReply);
+    rpc GetBatchPosition (GetBatchPositionRequest) returns (GetBatchPositionReply);
+    rpc GetStreamPosition (stream GetPositionRequest) returns (stream GetPositionReply);
+}
